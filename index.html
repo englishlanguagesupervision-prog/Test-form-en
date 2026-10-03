@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <title>ExamCraft AI Pro — Professional Exam & Assessment Designer</title>
+  <!-- مكتبة Mammoth لقراءة ملفات Word .docx محلياً بدون خادم -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;800;900&family=Alexandria:wght@400;600;700;800&family=Amiri:wght@400;700&family=Cairo:wght@400;700;900&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0f172a;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #0f172a;
+      direction: ltr;
+    }
+
+    /* الشريط العلوي العام */
+    .top-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: #1e293b;
+      border-bottom: 2px solid #c19a4b;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      gap: 10px;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      background: #c19a4b;
+      color: #0f172a;
+      border: 1px solid #c19a4b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 12.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: #d4af37;
+      transform: translateY(-1px);
+    }
+
+    .btn-key {
+      background: #b91c1c !important;
+      color: #ffffff !important;
+      border: 1px solid #ef4444 !important;
+    }
+    .btn-key:hover {
+      background: #dc2626 !important;
+    }
+
+    .btn-danger-clear {
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      border: 1px solid #b91c1c !important;
+    }
+
+    .btn-print-main {
+      background: #0e5c4d;
+      color: #ffffff;
+      border: 1px solid #7ea698;
+    }
+    .btn-print-main:hover {
+      background: #147a66;
+    }
+
+    .btn-import {
+      background: #2563eb !important;
+      color: #ffffff !important;
+      border: 1px solid #60a5fa !important;
+    }
+    .btn-import:hover {
+      background: #1d4ed8 !important;
+    }
+
+    .select-tool {
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1.5px solid #c19a4b;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12.5px;
+      outline: none;
+    }
+
+    .whatsapp-btn {
+      background: #25D366;
+      color: #ffffff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: all 0.2s;
+    }
+
+    .whatsapp-btn:hover {
+      background: #20bd5a;
+      transform: translateY(-1px);
+    }
+
+    .whatsapp-btn svg {
+      width: 17px;
+      height: 17px;
+      fill: currentColor;
+    }
+
+    /* شريط أدوات تحرير Word */
+    .pro-editor-toolbar {
+      position: sticky;
+      top: 52px;
+      z-index: 999;
+      background: #f8fafc;
+      border-bottom: 1px solid #cbd5e1;
+      box-shadow: 0 3px 12px rgba(15,23,42,.16);
+      padding: 6px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    .pro-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border-right: 1px solid #cbd5e1;
+      padding-right: 7px;
+      margin-right: 2px;
+    }
+    .pro-group:last-child { border-right: 0; }
+
+    .pro-btn, .pro-select, .pro-color {
+      height: 31px;
+      border: 1px solid #94a3b8;
+      background: #fff;
+      color: #0f172a;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .pro-btn {
+      min-width: 31px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .pro-btn:hover { background: #e2e8f0; }
+    .pro-btn.active-undo { background: #fee2e2; border-color: #ef4444; }
+    .pro-select { padding: 0 7px; }
+    .pro-color { width: 34px; padding: 2px; }
+
+    .editor-status {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0e5c4d;
+      min-width: 150px;
+      text-align: right;
+    }
+
+    /* صفحات A4 */
+    #pagesContainer { padding-bottom: 80px; }
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 15px auto;
+      background: #ffffff;
+      padding: 8mm;
+      position: relative;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media print {
+      body { background: transparent; padding: 0; }
+      .top-toolbar, .pro-editor-toolbar, .no-print, .insert-menu, .exam-modal {
+        display: none !important;
+      }
+      .page {
+        margin: 0 !important;
+        page-break-after: always !important;
+        box-shadow: none !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
+      }
+      .question-box {
+        page-break-inside: avoid;
+      }
+      [contenteditable="true"] {
+        outline: none !important;
+      }
+      .page:last-child { page-break-after: auto !important; break-after: auto !important; }
+      .continuation-heading { display: none !important; }
+      .free-canvas-badge, .object-controls { display: none !important; }
+    }
+
+    .outer-border {
+      border: 2.2px solid #0e5c4d;
+      height: 100%;
+      padding: 3.5mm;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .inner-border {
+      border: 1.5px solid #c19a4b;
+      height: 100%;
+      padding: 6mm 8mm 5mm 8mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .main-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-height: 720px;
+      outline: none;
+    }
+
+    .free-canvas-badge {
+      position: absolute;
+      top: -2px;
+      right: 2px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #86efac;
+      border-radius: 12px;
+      padding: 2px 7px;
+      font-size: 9px;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    /* الترويسة */
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .header-col { width: 35%; }
+    .header-col.left-side {
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.35;
+      color: #0e5c4d;
+      font-weight: 800;
+    }
+
+    .header-col.center {
+      width: 30%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo-container { cursor: pointer; }
+    .header-col.center img {
+      max-height: 65px;
+      max-width: 140px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .header-col.right-side {
+      text-align: right;
+      font-size: 12px;
+      line-height: 1.35;
+      color: #0e5c4d;
+      font-weight: 800;
+      direction: rtl;
+      font-family: 'Alexandria', 'Cairo', sans-serif;
+    }
+
+    .sub-dep {
+      font-size: 11px;
+      color: #2e4d44;
+      font-weight: 600;
+    }
+
+    .divider-line {
+      height: 2.5px;
+      background: linear-gradient(to right, #0e5c4d 70%, #c19a4b 30%);
+      margin: 4px 0 6px 0;
+    }
+
+    .exam-title-box { text-align: center; margin-bottom: 5px; }
+    .exam-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #0e5c4d;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .exam-subtitle {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0e5c4d;
+      margin-top: 1px;
+    }
+
+    /* جدول بيانات الطالب */
+    .info-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .info-table {
+      flex: 1;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .info-table th {
+      background-color: #edf5f2;
+      color: #0e5c4d;
+      font-weight: 800;
+      padding: 3px;
+      border: 1px solid #7ea698;
+      text-align: center;
+    }
+
+    .info-table td {
+      border: 1px solid #7ea698;
+      padding: 3px;
+      text-align: center;
+      font-weight: 700;
+      height: 24px;
+    }
+
+    .total-marks-card {
+      width: 95px;
+      border: 1.5px solid #0e5c4d;
+      border-radius: 4px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .total-marks-title {
+      background-color: #edf5f2;
+      color: #0e5c4d;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 0;
+      border-bottom: 1px solid #0e5c4d;
+      text-transform: uppercase;
+    }
+
+    .total-marks-val {
+      font-size: 17px;
+      font-weight: 900;
+      color: #0e5c4d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+    }
+
+    /* صناديق الأسئلة والحاوية */
+    .questions-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 4px;
+      min-height: 120px;
+      position: relative;
+    }
+
+    .question-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 5px;
+      padding: 5px;
+      position: relative;
+      background: #ffffff;
+      transition: all 0.15s ease;
+    }
+    .question-box:hover {
+      border-color: #0e5c4d;
+    }
+
+    .section-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #edf5f2;
+      border-left: 5px solid #c19a4b;
+      padding: 2px 8px;
+      margin-bottom: 3px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .section-name, .section-mark {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0e5c4d;
+      outline: none;
+    }
+
+    .q-prompt-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3px;
+    }
+
+    .q-prompt {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0b3d33;
+      outline: none;
+      flex-grow: 1;
+    }
+
+    .score-badge {
+      width: 40px;
+      height: 24px;
+      border: 1.5px solid #475569;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      background-color: #ffffff;
+      outline: none;
+    }
+
+    .expand-control-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #1e293b;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+
+    .expand-control-bar input[type="range"] {
+      flex: 1;
+      min-width: 60px;
+      accent-color: #c19a4b;
+      cursor: pointer;
+    }
+
+    .px-label { color: #facc15; font-weight: 800; min-width: 36px; }
+
+    .btn-delete-q {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .btn-mini-tool {
+      background: #0e5c4d;
+      color: #fff;
+      border: 1px solid #7ea698;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .btn-mini-tool:hover { background: #147a66; }
+
+    .q-body-content {
+      border: 1px solid #e2e8f0;
+      background: #fafcfb;
+      border-radius: 4px;
+      padding: 6px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      outline: none;
+      min-height: 50px;
+    }
+
+    /* مربعات نصوص وصور حرة كبرنامج Word */
+    .editor-textbox {
+      min-height: 55px;
+      min-width: 120px;
+      padding: 10px;
+      border: 2px solid #0e5c4d;
+      background: #fff;
+      position: relative;
+      margin: 7px 0;
+      resize: both;
+      overflow: auto;
+    }
+
+    .editor-image {
+      display: inline-block;
+      margin: 7px;
+      max-width: 100%;
+      position: relative;
+    }
+    .editor-image img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .object-controls {
+      display: none;
+      position: absolute;
+      z-index: 100;
+      right: 4px;
+      top: 4px;
+      background: #fff;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      padding: 4px;
+      box-shadow: 0 5px 15px rgba(0,0,0,.15);
+      gap: 4px;
+      align-items: center;
+    }
+    .editor-textbox:hover .object-controls,
+    .editor-image:hover .object-controls,
+    .inline-image-shell:hover .object-controls, .is-selected > .object-controls { display: flex; }
+
+    /* أدوات داخل السؤال وربط الدرجات */
+    .question-inner-tools { display:flex; gap:5px; flex-wrap:wrap; margin:4px 0; }
+    .subquestion-row { display:flex; align-items:flex-start; gap:6px; margin:4px 0; }
+    .subquestion-number { font-weight:800; min-width:18px; color:#0e5c4d; }
+    .subquestion-text { flex:1; min-width:0; outline:none; border-bottom:1px dotted #94a3b8; }
+    .subquestion-mark { width:44px; min-width:44px; border:1px solid #94a3b8; border-radius:4px; padding:2px 3px; text-align:center; font-weight:800; background:#fff; }
+    .paragraph-block { margin:5px 0; padding:4px 6px; border-left:3px solid #cbd5e1; outline:none; }
+    .mark-editor { display:inline-flex; align-items:center; gap:3px; }
+    .mark-editor input { width:45px; border:1px solid #7ea698; border-radius:4px; text-align:center; font-weight:900; color:#0e5c4d; }
+    @media print { .question-inner-tools, .subquestion-mark-label { display:none !important; } .subquestion-mark { border:0 !important; width:auto !important; min-width:0 !important; padding:0 !important; } }
+
+    /* معرض صور داخل كل سؤال - Office style */
+    .question-media-tools { display:flex; gap:5px; flex-wrap:wrap; align-items:center; margin:4px 0; }
+    .question-image-gallery { display:flex; flex-wrap:wrap; align-items:flex-start; gap:8px; width:100%; min-height:0; margin:5px 0; }
+    .question-image-gallery.layout-column { flex-direction:column; flex-wrap:nowrap; }
+    .question-image-gallery.layout-row { flex-direction:row; flex-wrap:wrap; }
+    .question-image-gallery .editor-image { margin:3px; flex:0 0 auto; vertical-align:top; }
+    .question-image-gallery .editor-image img { width:220px; max-width:100%; height:auto; }
+    .image-delete-btn { border:0; background:#dc2626; color:#fff; border-radius:4px; font-weight:900; cursor:pointer; padding:3px 7px; }
+    .image-duplicate-btn { border:0; background:#0e5c4d; color:#fff; border-radius:4px; font-weight:800; cursor:pointer; padding:3px 7px; }
+    .image-toolbar-btn { background:#2563eb !important; border-color:#60a5fa !important; }
+    @media print { .question-media-tools, .image-delete-btn, .image-duplicate-btn { display:none !important; } .question-image-gallery { gap:6px; } }
+
+    /* أنماط الإجابات النموذجية وجداول الدرجات */
+    .ans-key {
+      color: #dc2626 !important;
+      font-weight: 800 !important;
+      display: none;
+    }
+
+    body.model-answer-active .ans-key {
+      display: inline !important;
+    }
+    body.model-answer-active .blank-dots {
+      display: none !important;
+    }
+
+    .rubric-strip {
+      border-collapse: collapse;
+      font-size: 10.5px;
+      border: 1.5px solid #334155;
+      background: #ffffff;
+      margin-top: 4px;
+      margin-left: 0 !important;
+      margin-right: auto !important;
+    }
+
+    .rubric-strip th, .rubric-strip td {
+      border: 1px solid #64748b;
+      text-align: center;
+      padding: 1px 6px;
+      height: 20px;
+    }
+    .rubric-strip th { background-color: #e2e8f0; font-weight: 800; color: #0f172a; }
+    .rubric-strip td { font-weight: 800; color: #0e5c4d; min-width: 24px; }
+
+    /* التذييل */
+    .footer-divider {
+      height: 1.5px;
+      background-color: #c19a4b;
+      margin: 3px 0;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    .footer-vision {
+      color: #0e5c4d;
+      font-family: 'Alexandria', sans-serif;
+      direction: rtl;
+    }
+
+    .page-num {
+      color: #0e5c4d;
+      font-weight: 800;
+      padding-left: 6px;
+    }
+
+    .follow-badge {
+      background-color: #0e5c4d !important;
+      color: #ffffff !important;
+      border: 1px solid #c19a4b;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      display: inline-flex !important;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* نوافذ القوائم المنبثقة Modals */
+    .exam-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.65);
+      z-index: 5000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .exam-modal-card {
+      width: min(880px, 96vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 25px 60px rgba(0,0,0,.35);
+      padding: 22px;
+    }
+    .exam-modal-card h2 { margin: 0 0 12px; color: #0e5c4d; display: flex; align-items: center; gap: 8px; }
+    .modal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    .modal-grid label { font-size: 12px; font-weight: 800; color: #334155; }
+    .modal-grid input, .modal-grid select, .modal-grid textarea {
+      width: 100%; margin-top: 4px; padding: 8px; border: 1px solid #94a3b8; border-radius: 6px;
+    }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 15px; flex-wrap: wrap; }
+    .primary { background: #0e5c4d !important; color: #fff !important; border-color: #0e5c4d !important; }
+    .secondary { background: #e2e8f0 !important; }
+    
+    .insert-menu {
+      position: fixed;
+      z-index: 3000;
+      background: #fff;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
+      padding: 6px;
+      display: none;
+    }
+    .insert-menu button {
+      display: block;
+      width: 190px;
+      text-align: left;
+      border: 0;
+      background: #fff;
+      padding: 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .insert-menu button:hover { background: #eef2ff; }
+
+    /* تبويبات بنك الأسئلة */
+    .bank-item {
+      border: 1px solid #cbd5e1;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .bank-item:hover { background: #edf5f2; border-color: #0e5c4d; }
+
+    /* Office-like object sizing & question controls */
+    .editor-image, .inline-image-shell { max-width:100%; box-sizing:border-box; }
+    .editor-image.is-selected, .inline-image-shell.is-selected { outline:2px solid #2563eb; outline-offset:2px; }
+    .editor-image img, .inline-image-shell img { max-width:100%; height:auto; object-fit:contain; }
+    .resize-handle { position:absolute; width:10px; height:10px; background:#fff; border:2px solid #2563eb; border-radius:2px; z-index:120; display:none; }
+    .is-selected > .resize-handle { display:block; }
+    .resize-handle.nw{left:-6px;top:-6px;cursor:nwse-resize}.resize-handle.n{left:50%;top:-6px;transform:translateX(-50%);cursor:ns-resize}.resize-handle.ne{right:-6px;top:-6px;cursor:nesw-resize}
+    .resize-handle.e{right:-6px;top:50%;transform:translateY(-50%);cursor:ew-resize}.resize-handle.se{right:-6px;bottom:-6px;cursor:nwse-resize}.resize-handle.s{left:50%;bottom:-6px;transform:translateX(-50%);cursor:ns-resize}.resize-handle.sw{left:-6px;bottom:-6px;cursor:nesw-resize}.resize-handle.w{left:-6px;top:50%;transform:translateY(-50%);cursor:ew-resize}
+    .object-size-panel { display:none; position:absolute; left:0; top:-38px; z-index:130; background:#fff; border:1px solid #94a3b8; border-radius:6px; padding:4px 6px; box-shadow:0 4px 12px rgba(0,0,0,.15); gap:5px; align-items:center; white-space:nowrap; font-size:10px; font-weight:700; }
+    .is-selected > .object-size-panel { display:flex; }
+    .object-size-panel input { width:54px; height:25px; border:1px solid #cbd5e1; border-radius:4px; padding:2px 4px; font-size:10px; }
+    .question-box { max-width:100%; overflow:visible; }
+    .question-box .q-body-content { max-width:100%; overflow-wrap:anywhere; }
+    .question-box .q-body-content img { max-width:100%; height:auto; }
+    .q-size-input { width:55px; height:23px; border:1px solid #64748b; border-radius:4px; padding:0 4px; font-size:10px; }
+    .q-range { width:90px; min-width:70px !important; }
+  
+    /* ===== V4 layout / print refinements ===== */
+    .top-toolbar { position: relative; top: auto; }
+    .pro-editor-toolbar { position: sticky; top: 0; z-index: 4000; }
+
+    /* More horizontal writing room while keeping A4 dimensions */
+    .page { padding-left: 5mm; padding-right: 5mm; }
+    .outer-border { padding-left: 2.5mm; padding-right: 2.5mm; }
+    .inner-border { padding-left: 4mm; padding-right: 4mm; }
+
+    /* Give the final Total/mark cell enough room for editing */
+    .rubric-strip .rubric-total-cell {
+      min-width: 52px !important;
+      width: 52px;
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      white-space: nowrap;
+    }
+
+    @media print {
+      .page { padding-left: 5mm !important; padding-right: 5mm !important; background:#fff !important; }
+      .outer-border { padding-left: 2.5mm !important; padding-right: 2.5mm !important; }
+      .inner-border { padding-left: 4mm !important; padding-right: 4mm !important; background:#fff !important; }
+      .question-box, .q-body-content, .questions-wrapper {
+        background:#fff !important;
+        background-color:#fff !important;
+      }
+      .question-box { box-shadow:none !important; }
+      .rubric-strip .rubric-total-cell { min-width:52px !important; width:52px !important; }
+    }
+
+/* Handwriting style imported from ExamCraft_AI_Pro reference */
+.handwriting-box .q-body-content{background:#fff!important;}
+.handwriting-copy-box{border:1px solid #cbd5e1;border-radius:6px;padding:10px 14px;background:#fff;margin:4px 0 6px 0;}
+.handwriting-sample-text{font-size:15px;font-weight:800;color:#0e5c4d;margin-bottom:12px;outline:none;}
+.four-lines-container{width:100%;height:54px;display:flex;flex-direction:column;justify-content:space-between;position:relative;margin-bottom:4px;}
+.four-line-red{height:1.5px;background-color:#ef4444;width:100%;}
+.four-line-blue-dashed{border-top:1.5px dashed #3b82f6;width:100%;height:0;}
+@media print{.handwriting-copy-box,.handwriting-box .q-body-content{background:#fff!important;}}
+
+
+/* V7 unified editor enhancements */
+:root{--top-toolbar-h:52px}
+.pro-editor-toolbar{top:var(--top-toolbar-h)!important}
+.exam-modal{position:fixed;inset:0;background:rgba(15,23,42,.62);z-index:5000;display:none;align-items:center;justify-content:center;padding:20px}
+.exam-modal-card{width:min(900px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 25px 60px rgba(0,0,0,.35);padding:20px}
+.exam-modal-card h2{margin:0 0 12px;color:#0e5c4d}.modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.modal-grid label{font-size:12px;font-weight:800;color:#334155}.modal-grid input,.modal-grid select,.modal-grid textarea{width:100%;margin-top:4px;padding:8px;border:1px solid #94a3b8;border-radius:6px}.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:15px;flex-wrap:wrap}.secondary{background:#e2e8f0!important}.ai-output{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:12px;white-space:pre-wrap;min-height:120px;margin-top:12px;font-size:13px}.online-preview{background:#f1f5f9;padding:20px;border-radius:10px}.online-card{background:#fff;border-radius:10px;padding:18px;max-width:760px;margin:auto;box-shadow:0 4px 18px rgba(0,0,0,.1)}.cert-preview{border:10px double #0e5c4d;padding:35px;text-align:center;min-height:430px;background:#fffdf5;position:relative}.cert-preview h1{font-size:32px;color:#0e5c4d;margin:20px 0}.cert-name{font-size:27px;font-weight:900;border-bottom:2px solid #c19a4b;display:inline-block;padding:8px 35px}
+.drop-ready{outline:3px dashed #2563eb!important;outline-offset:-5px;background:#eff6ff!important}
+@media print{.exam-modal{display:none!important}}
+
+</style>
+</head>
+<body>
+
+  <!-- شريط التحكم العلوي -->
+  <div class="top-toolbar no-print">
+    <div class="toolbar-left">
+      <button class="btn-action btn-key" id="modelAnswerBtn" onclick="toggleModelAnswer()">🔑 Model Answer</button>
+      <button class="btn-action btn-danger-clear" onclick="clearAllTemplateData()" title="Clear and reset">🧹 Reset All</button>
+
+      <!-- اختيار المنهج الدراسي -->
+      <select id="stageSelect" class="select-tool" onchange="changeStage(this.value)">
+        <optgroup label="Primary Stage (المرحلة الابتدائية)">
+          <option value="top_goal" selected>🌟 Top Goal (Primary)</option>
+          <option value="top_stars">⭐ Top Stars (Primary)</option>
+          <option value="we_can">🎒 We Can (Primary)</option>
+        </optgroup>
+        <optgroup label="Intermediate Stage (المرحلة المتوسطة)">
+          <option value="pioneer">🧭 Pioneer (Intermediate)</option>
+          <option value="super_goal">🏫 Super Goal (Intermediate)</option>
+        </optgroup>
+        <optgroup label="Secondary Stage (المرحلة الثانوية)">
+          <option value="mega_goal">🎓 Mega Goal (Secondary)</option>
+        </optgroup>
+      </select>
+
+      <select id="targetPageSelect" class="select-tool">
+        <option value="page1_wrapper">Page 1</option>
+      </select>
+
+      <select id="questionTypeSelect" class="select-tool">
+        <option value="reading_split">📖 Reading Comprehension</option>
+        <option value="image_q">🖼️ Image / Picture Question</option>
+        <option value="handwriting">✍️ E) Handwriting (4-Lines)</option>
+        <option value="vocab">🔤 Vocabulary (Word Box)</option>
+        <option value="grammar">⚙️ Grammar (MCQ)</option>
+        <option value="spelling">🔠 Spelling / Missing Letters</option>
+        <option value="composition">📝 Composition / Writing</option>
+      </select>
+
+      <button class="btn-action" onclick="addNewEnglishQuestion()">➕ Add Question</button>
+      <button class="btn-action" onclick="addNewExamPage()">📄 ➕ Page</button>
+      <button class="btn-action" onclick="removeLastExamPage()">📄 ✖ Remove</button>
+      
+      <!-- أزرار الاستيراد المضافة -->
+      <button class="btn-action btn-import" onclick="document.getElementById('docxFileInput').click();" title="Import from Microsoft Word .docx">📥 Import Word (.docx)</button>
+      <input type="file" id="docxFileInput" accept=".docx" style="display:none;" onchange="importDocxFile(this)">
+      
+      <button class="btn-action btn-import" onclick="openQuestionBankModal()" title="Import from Question Bank">📚 Question Bank</button>
+
+      <button class="btn-action" onclick="document.getElementById('logoUploader').click();">📷 Logo</button>
+      <button class="btn-action btn-print-main" onclick="window.print();">🖨️ Print A4</button>
+      <input type="file" id="logoUploader" accept="image/*" style="display:none;" onchange="uploadLogo(this)">
+    </div>
+
+    <div class="toolbar-right">
+      <a href="https://wa.me/966530665625" target="_blank" class="whatsapp-btn" title="Contact on WhatsApp">
+        <svg viewBox="0 0 24 24"><path d="M12.031 2C6.496 2 2 6.48 2 12.012c0 1.942.556 3.755 1.517 5.29L2 22l4.838-1.503A9.957 9.957 0 0 0 12.031 22c5.534 0 10.03-4.48 10.03-10.012S17.565 2 12.031 2zm5.727 14.195c-.242.684-1.203 1.258-1.742 1.312-.486.05-1.12.083-3.415-.86-2.936-1.206-4.834-4.22-4.98-4.417-.146-.197-1.187-1.579-1.187-3.013 0-1.433.748-2.14 1.014-2.434.267-.294.583-.368.777-.368.194 0 .388.002.558.01.182.008.425-.069.664.507.243.587.825 2.014.898 2.162.073.147.121.32.024.516-.097.196-.146.318-.291.49-.146.172-.307.385-.438.516-.146.147-.298.307-.128.6.17.293.755 1.246 1.621 2.018 1.114.993 2.052 1.302 2.344 1.448.291.147.462.122.632-.073.17-.196.729-.855.923-1.149.194-.294.389-.245.656-.147.267.098 1.699.802 1.99 948.292.147.486.221.559.343.073.122.073.708-.169 1.392z"/></svg>
+        <span>WhatsApp</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- شريط تحرير الوورد المتقدم مع زري التراجع والإعادة البارزين -->
+  <div class="pro-editor-toolbar no-print" id="proToolbar">
+    <!-- مجموعة أزرار التراجع والإعادة الذكية -->
+    <div class="pro-group">
+      <button class="pro-btn" onclick="undoAction()" title="Undo (Ctrl+Z)" style="background:#fef3c7; border-color:#d97706; color:#92400e;">
+        ↶ <b>Undo</b>
+      </button>
+      <button class="pro-btn" onclick="redoAction()" title="Redo (Ctrl+Y)">
+        ↷ <b>Redo</b>
+      </button>
+    </div>
+
+    <!-- تنسيق الخطوط والأحجام -->
+    <div class="pro-group">
+      <select class="pro-select" id="fontFamily" onchange="formatFont(this.value)" title="Font Family">
+        <option value="Segoe UI">Segoe UI</option>
+        <option value="Calibri">Calibri (Word)</option>
+        <option value="Arial">Arial</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Cairo">Cairo (عربي)</option>
+        <option value="Alexandria">Alexandria (عربي)</option>
+        <option value="Amiri">Amiri (عربي)</option>
+        <option value="Tahoma">Tahoma</option>
+      </select>
+      <select class="pro-select" id="fontSize" onchange="formatSize(this.value)" title="Font Size">
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12" selected>12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="16">16</option>
+        <option value="18">18</option>
+        <option value="20">20</option>
+        <option value="24">24</option>
+        <option value="28">28</option>
+      </select>
+    </div>
+
+    <!-- التنسيق الأساسي والألوان -->
+    <div class="pro-group">
+      <button class="pro-btn" onclick="execCmd('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button class="pro-btn" onclick="execCmd('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button class="pro-btn" onclick="execCmd('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+      <input class="pro-color" type="color" id="textColor" value="#0f172a" onchange="execCmd('foreColor',this.value)" title="Text Color">
+      <input class="pro-color" type="color" id="highlightColor" value="#fff2a8" onchange="highlightSelection(this.value)" title="Highlight Color">
+    </div>
+
+    <!-- المحاذاة والاتجاه -->
+    <div class="pro-group">
+      <button class="pro-btn" onclick="execCmd('justifyLeft')" title="Align Left">≡←</button>
+      <button class="pro-btn" onclick="execCmd('justifyCenter')" title="Center">≡</button>
+      <button class="pro-btn" onclick="execCmd('justifyRight')" title="Align Right">→≡</button>
+      <button class="pro-btn" onclick="execCmd('justifyFull')" title="Justify">≡≡</button>
+      <button class="pro-btn" onclick="toggleDirection()" title="Toggle Direction RTL/LTR">↔ RTL</button>
+    </div>
+
+    <!-- الإدراج كبرنامج Word -->
+    <div class="pro-group">
+      <button class="pro-btn" onclick="insertTable()" title="Insert Word Table">▦ Table</button>
+      <button class="pro-btn" onclick="insertTextBox()" title="Insert Text Box">▣ Text Box</button>
+      <button class="pro-btn" onclick="insertImageAtCursor()" title="Insert Image">🖼 Image</button>
+      <button class="pro-btn" onclick="showInsertMenu(this)" title="More Options">＋ More</button>
+    </div>
+
+    <div class="pro-group">
+      <button class="pro-btn" onclick="openAIModal()">✨ AI</button>
+      <button class="pro-btn" onclick="openOnlineModal()">💻 Online Test</button>
+      <button class="pro-btn" onclick="openCertificateModal()">🏆 Certificate</button>
+    </div>
+
+    <div class="pro-group">
+      <button class="pro-btn" onclick="saveExamData()">💾 Save</button>
+      <button class="pro-btn" onclick="exportExamFile()">⬇ Save Exam File</button>
+      <button class="pro-btn" onclick="openExamFile()">📂 Open Exam</button>
+      <button class="pro-btn" id="spellBtn" onclick="toggleSpellCheck()">✓ Spelling ON</button>
+      <button class="pro-btn primary" onclick="window.print()">🖨 Print</button>
+    </div>
+
+    <input type="file" id="examFileInput" accept=".examcraft,.json" style="display:none" onchange="importExamFile(this)">
+    <div class="editor-status" id="editorStatus">🟢 Word-Like Canvas Active</div>
+  </div>
+
+  <!-- قائمة الإدراج الفرعية -->
+  <div class="insert-menu" id="insertMenu">
+    <button onclick="insertHorizontalRule()">― Horizontal Rule</button>
+    <button onclick="insertSpecialSymbol()">Ω Special Symbols</button>
+    <button onclick="insertAnswerLines()">☰ Answer Lines (Dots)</button>
+    <button onclick="insertFourLinesBlock()">✍️ 4-Lines English Handwriting</button>
+  </div>
+
+  <!-- الحاوية الأساسية للصفحات -->
+  <div id="pagesContainer">
+
+    <!-- الصفحة 1 (A4) -->
+    <div class="page" id="page1">
+      <div class="outer-border">
+        <div class="inner-border">
+          
+          <div class="main-body" contenteditable="true" spellcheck="true">
+            <div class="free-canvas-badge no-print">WORD EDITING CANVAS</div>
+
+            <!-- الترويسة الأكاديمية الرسمية -->
+            <div>
+              <div class="header-top">
+                <div class="header-col left-side" id="headerEnglishSide">
+                  Kingdom of Saudi Arabia<br>
+                  Ministry of Education<br>
+                  Al-Bayariq Private Schools<br>
+                  <span class="sub-dep" id="stageEnglishText">Elementary Section</span>
+                </div>
+                
+                <div class="header-col center">
+                  <div class="logo-container" onclick="document.getElementById('logoUploader').click();" title="Click to upload logo">
+                    <img id="schoolLogo" src="d4b18761-7549-4fc4-b88b-8a2fe8b8084b.png" alt="School Logo" onerror="this.src='https://via.placeholder.com/130x65?text=School+Logo'">
+                  </div>
+                </div>
+
+                <div class="header-col right-side">
+                  المملكة العربية السعودية<br>
+                  وزارة التعليم<br>
+                  مدارس البيارق الأهلية<br>
+                  <span class="sub-dep" id="stageArabicText">القسم الابتدائي (بنين)</span>
+                </div>
+              </div>
+
+              <div class="divider-line"></div>
+
+              <div class="exam-title-box">
+                <div class="exam-title" id="examTitle" contenteditable="true">First Period Exam</div>
+                <div class="exam-subtitle" id="examSubtitle" contenteditable="true">English Language — Top Goal</div>
+              </div>
+
+              <div class="info-container">
+                <table class="info-table">
+                  <tr>
+                    <th style="width: 20%;">SEMESTER</th>
+                    <th style="width: 15%;">DATE</th>
+                    <th style="width: 25%;">COURSE</th>
+                    <th style="width: 15%;">CLASS</th>
+                    <th style="width: 25%;">NAME</th>
+                  </tr>
+                  <tr>
+                    <td contenteditable="true">1st Semester</td>
+                    <td contenteditable="true">&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;/ 1448 H</td>
+                    <td id="courseNameCell" contenteditable="true">English (Top Goal)</td>
+                    <td id="classNameCell" contenteditable="true">Grade &nbsp;&nbsp;&nbsp; / </td>
+                    <td contenteditable="true" id="studentNameCell"></td>
+                  </tr>
+                </table>
+                <div class="total-marks-card">
+                  <div class="total-marks-title">TOTAL MARKS</div>
+                  <div class="total-marks-val" id="totalMarksCard" contenteditable="true">/ 20</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- حاوية الأسئلة القابلة للتحرير المباشر -->
+            <div id="page1_wrapper" class="questions-wrapper">
+            </div>
+
+          </div>
+
+          <!-- تذييل الصفحة -->
+          <div>
+            <div class="footer-divider"></div>
+            <div class="footer-row">
+              <div class="footer-vision">✨ With my best wishes ✨</div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="footer-badge-text follow-badge" id="p1_follow_tag">انتهت الأسئلة</span>
+                <div class="page-num page-num-tag" style="border: none;">Page 1 of 1</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= نافذة بنك الأسئلة والاستيراد الذكي ================= -->
+  <div class="exam-modal" id="questionBankModal">
+    <div class="exam-modal-card">
+      <h2>📚 English Question Bank & Smart Importer</h2>
+      <p style="font-size:12px; color:#475569; margin-top:0;">اختر من بنك الأسئلة المدمج أو الصق أي نص/أسئلة لتقسيمها وإدراجها فوراً داخل الاختبار:</p>
+      
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <button class="pro-btn primary" onclick="showBankCategory('grammar')">⚙️ Grammar</button>
+        <button class="pro-btn primary" onclick="showBankCategory('vocab')">🔤 Vocabulary</button>
+        <button class="pro-btn primary" onclick="showBankCategory('reading')">📖 Reading</button>
+        <button class="pro-btn primary" onclick="showBankCategory('spelling')">🔠 Spelling</button>
+      </div>
+
+      <div id="bankListContainer" style="max-height: 220px; overflow-y:auto; margin-bottom:15px;">
+        <!-- يتم ملؤه تلقائياً بالأمثلة -->
+      </div>
+
+      <hr style="border:0; border-top:1px solid #cbd5e1; margin:15px 0;">
+
+      <label style="font-weight:bold; font-size:12px; display:block; margin-bottom:5px;">أو الصق نص الأسئلة هنا (Paste External Questions):</label>
+      <textarea id="customBankInput" rows="4" style="width:100%; border:1px solid #94a3b8; border-radius:6px; padding:8px; font-family:inherit;" placeholder="مثال:
+1. Ali (go - goes - went) to school yesterday.
+2. We (play - plays - played) football every Friday."></textarea>
+
+      <div class="modal-actions">
+        <button class="pro-btn secondary" onclick="closeModal('questionBankModal')">Close</button>
+        <button class="pro-btn primary" onclick="insertCustomPastedQuestions()">Insert Pasted Text as Question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تأكيد استيراد ملف Word -->
+  <div class="exam-modal" id="wordImportModal">
+    <div class="exam-modal-card">
+      <h2>📥 Word Document (.docx) Imported Successfully</h2>
+      <p style="font-size:12px; color:#475569;">تمت قراءة محتويات ملف الوورد بنجاح. يمكنك معاينتها وإدراجها مباشرة داخل صفحة الاختبار الحالية:</p>
+      <div id="wordPreviewContent" style="max-height:280px; overflow-y:auto; border:1px solid #cbd5e1; padding:12px; background:#f8fafc; border-radius:6px; font-size:13px; line-height:1.6;"></div>
+      <div class="modal-actions">
+        <button class="pro-btn secondary" onclick="closeModal('wordImportModal')">Cancel</button>
+        <button class="pro-btn primary" onclick="insertWordContentToCanvas()">➕ Insert into Active Page</button>
+      </div>
+    </div>
+  </div>
+
+  
+<div class="exam-modal" id="aiModal"><div class="exam-modal-card"><h2>✨ AI Exam Assistant</h2><div class="modal-grid"><label>Subject<input id="aiSubject" value="English Language"></label><label>Grade<input id="aiGrade" value="Grade 4"></label><label>Topic<input id="aiTopic" value="Unit 1"></label><label>Number of questions<input id="aiCount" type="number" value="10" min="1" max="50"></label><label>Difficulty<select id="aiDifficulty"><option>Easy</option><option selected>Medium</option><option>Hard</option></select></label><label>Question type<select id="aiType"><option>Multiple Choice</option><option>True / False</option><option>Vocabulary</option><option>Grammar</option><option>Reading</option><option>Mixed</option></select></label></div><div class="modal-actions"><button class="pro-btn secondary" onclick="closeModal('aiModal')">Close</button><button class="pro-btn primary" onclick="generateAIQuestions()">Generate Draft</button><button class="pro-btn" onclick="insertAIOutput()">Insert into Exam</button></div><div id="aiOutput" class="ai-output">Choose the requirements and click Generate Draft.</div><p style="font-size:11px;color:#64748b">Offline draft generator. It does not call an external AI service.</p></div></div>
+<div class="exam-modal" id="onlineModal"><div class="exam-modal-card"><h2>💻 Online Exam Builder</h2><div class="modal-grid"><label>Exam title<input id="onlineTitle" value="English Online Assessment"></label><label>Duration (minutes)<input id="onlineMinutes" type="number" value="30" min="1"></label><label>Attempts<input id="onlineAttempts" type="number" value="1" min="1"></label><label>Randomize questions<select id="onlineRandom"><option>Yes</option><option>No</option></select></label><label>Show result<select id="onlineResult"><option>After submission</option><option>Hidden</option></select></label><label>Student access<select id="onlineAccess"><option>Open link</option><option>PIN required</option></select></label></div><div class="online-preview" style="margin-top:15px"><div class="online-card"><h3 id="onlinePreviewTitle">English Online Assessment</h3><p>⏱ <span id="onlinePreviewTime">30</span> minutes • Attempts: <span id="onlinePreviewAttempts">1</span></p><hr><p>Preview of electronic delivery settings.</p></div></div><div class="modal-actions"><button class="pro-btn secondary" onclick="closeModal('onlineModal')">Close</button><button class="pro-btn primary" onclick="saveOnlineSettings()">Save Online Settings</button></div></div></div>
+<div class="exam-modal" id="certificateModal"><div class="exam-modal-card"><h2>🏆 Certificate Designer</h2><div class="modal-grid"><label>Student name<input id="certName" value="Student Name"></label><label>Achievement<input id="certAchievement" value="English Assessment"></label><label>Score<input id="certScore" value="90%"></label><label>Date<input id="certDate" type="date"></label><label>Teacher<input id="certTeacher" value="English Teacher"></label><label>Certificate ID<input id="certId" value="EX-2026-0001"></label></div><div class="cert-preview" id="certificatePreview"><div style="font-weight:800;color:#64748b">AL-BAYARIQ PRIVATE SCHOOLS</div><h1>Certificate of Achievement</h1><div>This certificate is proudly presented to</div><div class="cert-name" id="certPreviewName">Student Name</div><p>for successfully completing <b id="certPreviewAchievement">English Assessment</b></p><p>Score: <b id="certPreviewScore">90%</b></p><p id="certPreviewDate"></p><p>Teacher: <b id="certPreviewTeacher">English Teacher</b></p><small>Certificate ID: <span id="certPreviewId">EX-2026-0001</span></small></div><div class="modal-actions"><button class="pro-btn secondary" onclick="closeModal('certificateModal')">Close</button><button class="pro-btn primary" onclick="printCertificate()">🖨 Print Certificate</button></div></div></div>
+<script>
+    /* =========================================================
+       1. محرك التراجع والإعادة الذكي (Undo & Redo Manager)
+       ========================================================= */
+    const MAX_HISTORY = 30;
+    let historyStack = [];
+    let historyStep = -1;
+    let isPerformingUndoRedo = false;
+
+    function recordState() {
+      if (isPerformingUndoRedo) return;
+      const container = document.getElementById('pagesContainer');
+      if (!container) return;
+
+      const currentState = container.innerHTML;
+
+      // تجنب تكرار الحالة نفسها
+      if (historyStep >= 0 && historyStack[historyStep] === currentState) return;
+
+      // إزالة أي حالات للأمام إذا تم عمل تعديل جديد
+      if (historyStep < historyStack.length - 1) {
+        historyStack = historyStack.slice(0, historyStep + 1);
+      }
+
+      historyStack.push(currentState);
+      if (historyStack.length > MAX_HISTORY) historyStack.shift();
+      else historyStep++;
+
+      updateUndoButtonState();
+    }
+
+    function undoAction() {
+      if (historyStep > 0) {
+        isPerformingUndoRedo = true;
+        historyStep--;
+        document.getElementById('pagesContainer').innerHTML = historyStack[historyStep];
+        updateAllPagesFooterAndDropdown();
+        enableFreeCanvas();
+        showStatusMessage('↶ Undone last action');
+        isPerformingUndoRedo = false;
+        updateUndoButtonState();
+      } else {
+        // تجربة تراجع المتصفح القياسي للنصوص
+        document.execCommand('undo', false, null);
+      }
+    }
+
+    function redoAction() {
+      if (historyStep < historyStack.length - 1) {
+        isPerformingUndoRedo = true;
+        historyStep++;
+        document.getElementById('pagesContainer').innerHTML = historyStack[historyStep];
+        updateAllPagesFooterAndDropdown();
+        enableFreeCanvas();
+        showStatusMessage('↷ Redone action');
+        isPerformingUndoRedo = false;
+        updateUndoButtonState();
+      } else {
+        document.execCommand('redo', false, null);
+      }
+    }
+
+    function updateUndoButtonState() {
+      const status = document.getElementById('editorStatus');
+      if (status) {
+        status.textContent = `🟢 Step ${historyStep + 1}/${historyStack.length} • Word Canvas`;
+      }
+    }
+
+    // تسجيل التعديلات عند الكتابة مع مهلة خفيفة Debounce
+    let inputTimeout = null;
+    document.addEventListener('input', (e) => {
+      if (e.target.closest('#pagesContainer')) {
+        clearTimeout(inputTimeout);
+        inputTimeout = setTimeout(() => {
+          recordState();
+        }, 600);
+      }
+    });
+
+    // اختصارات لوحة المفاتيح
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) redoAction();
+        else undoAction();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        redoAction();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveExamData();
+      }
+    });
+
+    /* =========================================================
+       2. استيراد ملفات Word (.docx) وبنك الأسئلة
+       ========================================================= */
+    let parsedWordHtml = '';
+
+    function importDocxFile(input) {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const arrayBuffer = e.target.result;
+        mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+          .then(function(result) {
+            parsedWordHtml = result.value; // محتوى HTML من ملف الوورد
+            document.getElementById('wordPreviewContent').innerHTML = parsedWordHtml;
+            openModal('wordImportModal');
+          })
+          .catch(function(err) {
+            alert('حدث خطأ أثناء قراءة ملف Word: ' + err.message);
+          });
+      };
+      reader.readAsArrayBuffer(file);
+      input.value = ''; // إعادة تعيين
+    }
+
+    function insertWordContentToCanvas() {
+      if (!parsedWordHtml) return;
+      const activeWrapper = getActiveWrapper();
+
+      const box = document.createElement('div');
+      box.className = 'question-box';
+      box.innerHTML = `
+        <div class="section-bar">
+          <div class="section-name" contenteditable="true">Imported Section (from Word)</div>
+          <div class="section-mark" contenteditable="true">(5 Marks)</div>
+        </div>
+        <div class="q-body-content" contenteditable="true" style="padding:10px;">
+          ${parsedWordHtml}
+        </div>
+      `;
+
+      activeWrapper.appendChild(box);
+      closeModal('wordImportModal');
+      recordState();
+      box.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // بيانات بنك الأسئلة المدمج
+    const questionBankData = {
+      grammar: [
+        { title: "Present Simple (Subject-Verb)", content: "1. She (wash - washes - washing) the dishes every evening.<br>2. They (lives - live - living) in Riyadh." },
+        { title: "Past Simple (Wh- & Aux)", content: "1. Where (did - do - does) you go last weekend?<br>2. We (visit - visited - visiting) our grandparents yesterday." },
+        { title: "Pronouns & Modals", content: "1. That bag belongs to Sarah. It is (her - hers - him).<br>2. You (must - must not) drive fast near schools." }
+      ],
+      vocab: [
+        { title: "Jobs & Occupations", content: "[ pilot — doctor — teacher — architect ]<br>1. A ____________ flies planes across countries.<br>2. A ____________ designs modern buildings." },
+        { title: "Adjectives & Opposites", content: "[ fast — noisy — clean — huge ]<br>1. Turtles are slow, but cheetahs are ____________.<br>2. An elephant is a ____________ animal." }
+      ],
+      reading: [
+        { title: "Short Passage: Camels in the Desert", content: "<strong>Passage:</strong> Camels are known as the ships of the desert. They can drink large amounts of water and survive for days without food. They have wide feet to walk easily on soft sand.<br><br><strong>Questions:</strong><br>1. Why are camels called the ships of the desert?<br>2. Put (✔) or (✖): Camels walk with difficulty on sand. ( &nbsp;&nbsp;&nbsp;&nbsp; )" }
+      ],
+      spelling: [
+        { title: "Missing Letters", content: "1. sc__ool ( h / k ) &nbsp;&nbsp;&nbsp;&nbsp; 2. b__ok ( o / a ) &nbsp;&nbsp;&nbsp;&nbsp; 3. pen__il ( c / s )" }
+      ]
+    };
+
+    function openQuestionBankModal() {
+      showBankCategory('grammar');
+      openModal('questionBankModal');
+    }
+
+    function showBankCategory(category) {
+      const container = document.getElementById('bankListContainer');
+      container.innerHTML = '';
+      const items = questionBankData[category] || [];
+
+      items.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'bank-item';
+        div.innerHTML = `
+          <div>
+            <div style="font-weight:bold; color:#0e5c4d; font-size:13px;">${item.title}</div>
+            <div style="font-size:11.5px; color:#475569; margin-top:3px;">${item.content}</div>
+          </div>
+          <button class="pro-btn primary" onclick="insertBankItem('${category}', '${item.title}')">➕ Add</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function insertBankItem(category, title) {
+      const item = questionBankData[category].find(x => x.title === title);
+      if (!item) return;
+
+      const activeWrapper = getActiveWrapper();
+      qCounter++;
+      const box = document.createElement('div');
+      box.className = 'question-box';
+      box.innerHTML = `
+        <div class="section-bar">
+          <div class="section-name" contenteditable="true">${qCounter}) ${item.title}</div>
+          <div class="section-mark" contenteditable="true">(4 Marks)</div>
+        </div>
+        <div class="q-body-content" contenteditable="true" style="padding:10px;">
+          ${item.content}
+        </div>
+        <table class="rubric-strip">
+          <tr>
+            <th contenteditable="true">Q${qCounter} Mark</th>
+            <th>1</th><td contenteditable="true"></td>
+            <th>2</th><td contenteditable="true"></td>
+            <th>Total</th><td class="rubric-total-cell" contenteditable="true">/ 4</td>
+          </tr>
+        </table>
+      `;
+
+      activeWrapper.appendChild(box);
+      closeModal('questionBankModal');
+      recordState();
+      box.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function insertCustomPastedQuestions() {
+      const text = document.getElementById('customBankInput').value.trim();
+      if (!text) { alert('الرجاء كتابة أو لصق نص الأسئلة أولاً.'); return; }
+
+      const activeWrapper = getActiveWrapper();
+      qCounter++;
+      const formattedText = text.replace(/\n/g, '<br>');
+
+      const box = document.createElement('div');
+      box.className = 'question-box';
+      box.innerHTML = `
+        <div class="section-bar">
+          <div class="section-name" contenteditable="true">${qCounter}) Questions</div>
+          <div class="section-mark" contenteditable="true">(4 Marks)</div>
+        </div>
+        <div class="q-body-content" contenteditable="true" style="padding:10px;">
+          ${formattedText}
+        </div>
+      `;
+
+      activeWrapper.appendChild(box);
+      document.getElementById('customBankInput').value = '';
+      closeModal('questionBankModal');
+      recordState();
+      box.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function getActiveWrapper() {
+      const selectVal = document.getElementById('targetPageSelect').value;
+      let wrapper = document.getElementById(selectVal);
+      if (!wrapper) wrapper = document.querySelector('.questions-wrapper');
+      return wrapper;
+    }
+
+    /* =========================================================
+       3. وظائف تنسيق Word والإدراج المباشر
+       ========================================================= */
+    let lastSelection = null;
+
+    function saveSelection() {
+      const s = window.getSelection();
+      if (s && s.rangeCount > 0) {
+        lastSelection = s.getRangeAt(0).cloneRange();
+      }
+    }
+    document.addEventListener('selectionchange', saveSelection);
+
+    function restoreSelection() {
+      if (lastSelection) {
+        const s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(lastSelection);
+        return true;
+      }
+      return false;
+    }
+
+    function execCmd(cmd, val = null) {
+      restoreSelection();
+      document.execCommand(cmd, false, val);
+      recordState();
+    }
+
+    function formatFont(font) {
+      restoreSelection();
+      document.execCommand('fontName', false, font);
+      recordState();
+    }
+
+    function formatSize(size) {
+      restoreSelection();
+      document.execCommand('fontSize', false, '7');
+      document.querySelectorAll('font[size="7"]').forEach(n => {
+        n.removeAttribute('size');
+        n.style.fontSize = size + 'px';
+      });
+      recordState();
+    }
+
+    function highlightSelection(color) {
+      restoreSelection();
+      try { document.execCommand('hiliteColor', false, color); }
+      catch(e) { document.execCommand('backColor', false, color); }
+      recordState();
+    }
+
+    function toggleDirection() {
+      const target = getActiveEditable();
+      if (target) {
+        target.dir = target.dir === 'rtl' ? 'ltr' : 'rtl';
+        target.style.textAlign = target.dir === 'rtl' ? 'right' : 'left';
+        recordState();
+      }
+    }
+
+    function getActiveEditable() {
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount) {
+        const node = sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement;
+        return node.closest('[contenteditable="true"]');
+      }
+      return null;
+    }
+
+    function insertNodeAtSelection(node) {
+      if (restoreSelection()) {
+        const r = window.getSelection().getRangeAt(0);
+        r.deleteContents();
+        r.insertNode(node);
+        r.setStartAfter(node);
+        r.collapse(true);
+      } else {
+        const wrapper = getActiveWrapper();
+        wrapper.appendChild(node);
+      }
+      recordState();
+    }
+
+    function insertTable() {
+      const rows = parseInt(prompt('Number of rows (عدد الصفوف):', '3') || '3');
+      const cols = parseInt(prompt('Number of columns (عدد الأعمدة):', '3') || '3');
+      if (isNaN(rows) || isNaN(cols)) return;
+
+      const table = document.createElement('table');
+      table.style.cssText = 'border-collapse:collapse; width:100%; margin:8px 0;';
+      const tbody = document.createElement('tbody');
+
+      for (let r = 0; r < rows; r++) {
+        const tr = document.createElement('tr');
+        for (let c = 0; c < cols; c++) {
+          const cell = document.createElement(r === 0 ? 'th' : 'td');
+          cell.contentEditable = 'true';
+          cell.textContent = r === 0 ? `Header ${c + 1}` : '...';
+          cell.style.cssText = 'border:1px solid #7ea698; padding:5px; text-align:center;';
+          if (r === 0) cell.style.backgroundColor = '#edf5f2';
+          tr.appendChild(cell);
+        }
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+      insertNodeAtSelection(table);
+    }
+
+    function insertTextBox() {
+      const box = document.createElement('div');
+      box.className = 'editor-textbox';
+      box.contentEditable = 'true';
+      box.innerHTML = '<div><b>Text Box</b></div><div>Type or paste your notes here...</div>';
+      
+      const controls = document.createElement('div');
+      controls.className = 'object-controls no-print';
+      controls.innerHTML = `
+        <button type="button" onclick="this.closest('.editor-textbox').remove(); recordState();" style="border:0; background:#fee2e2; color:#991b1b; border-radius:4px; font-weight:bold; cursor:pointer;">✕</button>
+      `;
+      box.appendChild(controls);
+
+      insertNodeAtSelection(box);
+    }
+
+    function insertImageAtCursor() {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.onchange = () => {
+        const file = fileInput.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const wrap = document.createElement('div');
+          wrap.className = 'editor-image';
+          wrap.contentEditable = 'false';
+          wrap.innerHTML = `
+            <img src="${e.target.result}" style="width:260px; max-width:100%;" alt="Exam Image">
+            <div class="object-size-panel no-print">W <input type="number" min="30" value="260" onchange="setSelectedImageSize(this,'w')"> H <input type="number" min="20" placeholder="auto" onchange="setSelectedImageSize(this,'h')"> px</div>
+            <div class="object-controls no-print">
+              <button onclick="this.closest('.editor-image').remove(); recordState();" style="border:0; background:#fee2e2; color:#991b1b; border-radius:4px; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+          `;
+          insertNodeAtSelection(wrap);
+          prepareResizableImage(wrap);
+          selectResizableImage(wrap);
+        };
+        reader.readAsDataURL(file);
+      };
+      fileInput.click();
+    }
+
+    function showInsertMenu(btn) {
+      const m = document.getElementById('insertMenu');
+      const r = btn.getBoundingClientRect();
+      m.style.left = r.left + 'px';
+      m.style.top = (r.bottom + 5) + 'px';
+      m.style.display = 'block';
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#insertMenu') && !e.target.closest('.pro-btn')) {
+        document.getElementById('insertMenu').style.display = 'none';
+      }
+    });
+
+    function insertHorizontalRule() {
+      document.execCommand('insertHorizontalRule');
+      document.getElementById('insertMenu').style.display = 'none';
+      recordState();
+    }
+
+    function insertSpecialSymbol() {
+      document.execCommand('insertText', false, ' ✓  ✗  ★  ☆  →  ←  •  □  ☑  α  β ');
+      document.getElementById('insertMenu').style.display = 'none';
+      recordState();
+    }
+
+    function insertAnswerLines() {
+      const div = document.createElement('div');
+      div.innerHTML = '................................................................................................................................................<br>................................................................................................................................................';
+      insertNodeAtSelection(div);
+      document.getElementById('insertMenu').style.display = 'none';
+    }
+
+    function insertFourLinesBlock() {
+      const box = document.createElement('div');
+      box.style.cssText = 'border:1px solid #cbd5e1; border-radius:6px; padding:10px; margin:8px 0; background:#fff;';
+      box.innerHTML = `
+        <div contenteditable="true" style="font-weight:bold; margin-bottom:8px; color:#0e5c4d;">“ Write the English sentence here ”</div>
+        <div style="width:100%; height:45px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div style="height:1.5px; background-color:#ef4444;"></div>
+          <div style="border-top:1.5px dashed #3b82f6;"></div>
+          <div style="border-top:1.5px dashed #3b82f6;"></div>
+          <div style="height:1.5px; background-color:#ef4444;"></div>
+        </div>
+      `;
+      insertNodeAtSelection(box);
+      document.getElementById('insertMenu').style.display = 'none';
+    }
+
+    /* =========================================================
+       4. إضافة الأسئلة وإدارة المناهج والصفحات
+       ========================================================= */
+    let qCounter = 0;
+    let isModelAnswer = false;
+
+    function addNewEnglishQuestion() {
+      qCounter++;
+      const wrapper = getActiveWrapper();
+      const qType = document.getElementById('questionTypeSelect').value;
+
+      const box = document.createElement('div');
+      box.className = 'question-box';
+      box.id = `q_box_${qCounter}`;
+
+      let title = `${qCounter}) Section`;
+      let content = '';
+
+      if (qType === 'reading_split') {
+        title = `${qCounter}) Reading Comprehension`;
+        content = `
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:6px; border-radius:4px; margin-bottom:6px;">
+            <strong>Passage:</strong> Write your reading passage here...
+          </div>
+          1. Answer the question from the text: ....................................................<br>
+          2. Choose: The text is mainly about ( Animals — Space — Sports ).
+        `;
+      } else if (qType === 'image_q') {
+        title = `${qCounter}) Picture / Observation`;
+        content = `
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div style="border:1.5px dashed #cbd5e1; padding:6px; border-radius:4px; text-align:center;">
+              <img src="https://via.placeholder.com/120x80?text=Upload+Pic" style="cursor:pointer;" onclick="this.nextElementSibling.click()">
+              <input type="file" accept="image/*" style="display:none;" onchange="loadInlineImg(this, this.previousElementSibling)">
+            </div>
+            <div style="flex:1;">
+              1. What does the picture show? ....................................................<br><br>
+              2. Describe the action: ....................................................
+            </div>
+          </div>
+        `;
+      } else if (qType === 'handwriting') {
+        title = `E) Handwriting`;
+        content = `
+          <div class="handwriting-prompt"><b>Q${qCounter}- Copy the following sentence neatly on the lines below:</b></div>
+          <div class="handwriting-copy-box">
+            <div class="handwriting-sample-text" contenteditable="true">“ We speak English in the club. ”</div>
+            <div class="four-lines-container">
+              <div class="four-line-red"></div>
+              <div class="four-line-blue-dashed"></div>
+              <div class="four-line-blue-dashed"></div>
+              <div class="four-line-red"></div>
+            </div>
+          </div>`;
+      } else if (qType === 'grammar') {
+        title = `${qCounter}) Grammar`;
+        content = `
+          1. Sara ( study — studies — studying ) English every day. <span class="ans-key">[ ➔ studies ]</span><br>
+          2. They ( was — were — are ) in Dubai last year. <span class="ans-key">[ ➔ were ]</span>
+        `;
+      } else if (qType === 'vocab') {
+        title = `${qCounter}) Vocabulary`;
+        content = `
+          <div style="border:1.5px dashed #0e5c4d; background:#f0fdf4; padding:3px 10px; text-align:center; font-weight:bold; margin-bottom:6px;">
+            [ doctor — library — pencil — plane ]
+          </div>
+          1. We borrow books from the (<span class="blank-dots">................</span><span class="ans-key">library</span>).<br>
+          2. A (<span class="blank-dots">................</span><span class="ans-key">doctor</span>) works in a hospital.
+        `;
+      } else {
+        title = `${qCounter}) General Question`;
+        content = `
+          1. Write question sentence here ....................................................<br>
+          2. Another prompt goes here ....................................................
+        `;
+      }
+
+      box.innerHTML = `
+        <div class="expand-control-bar no-print">
+          <span>Q${qCounter}</span>
+          <span>↕ Height</span><input class="q-range" type="range" min="60" max="700" value="120" oninput="resizeQuestion(this,'height')">
+          <span>↔ Width</span><input class="q-range" type="range" min="55" max="100" value="100" oninput="resizeQuestion(this,'width')">
+          <span>Font</span><input class="q-size-input" type="number" min="8" max="40" value="13" onchange="resizeQuestion(this,'font')">
+          <button class="btn-mini-tool" onclick="resetQuestionSize(this)">↺ Reset</button>
+          <button class="btn-delete-q" onclick="this.closest('.question-box').remove(); recordState();">✕ Delete</button>
+        </div>
+        <div class="section-bar">
+          <div class="section-name" contenteditable="true">${title}</div>
+          <div class="section-mark mark-editor"><input type="number" min="0" max="50" value="${qType === 'handwriting' ? 1 : 4}" oninput="setQuestionTotalMark(this)"> <span>${qType === 'handwriting' ? 'Mark' : 'Marks'}</span></div>
+        </div>
+        <div class="question-inner-tools no-print">
+          <button type="button" class="btn-mini-tool generic-q-tool" onclick="addSubQuestion(this)">＋ Sub-question</button>
+          <button type="button" class="btn-mini-tool generic-q-tool" onclick="addQuestionParagraph(this)">¶ Paragraph</button>
+          <button type="button" class="btn-mini-tool generic-q-tool" onclick="addMCQTable(this)">▦ MCQ Table</button>
+          <button type="button" class="btn-mini-tool image-toolbar-btn" onclick="addImagesToQuestion(this)">🖼 + Images</button>
+          <button type="button" class="btn-mini-tool generic-q-tool" onclick="setQuestionImageLayout(this,'row')">▦ Side by side</button>
+          <button type="button" class="btn-mini-tool generic-q-tool" onclick="setQuestionImageLayout(this,'column')">☷ Stacked</button>
+          <button type="button" class="btn-mini-tool handwriting-only" style="display:none" onclick="addHandwritingLineSet(this)">＋ Writing Lines</button>
+        </div>
+        <div class="q-body-content" contenteditable="true">
+          ${content}
+        </div>
+        <table class="rubric-strip" data-total-mark="${qType === 'handwriting' ? 1 : 4}">
+          <tr>
+            <th contenteditable="true">Q${qCounter} Mark</th>
+            <th>1</th><td contenteditable="true"></td>
+            <th>2</th><td contenteditable="true"></td>
+            <th>3</th><td contenteditable="true"></td>
+            <th>4</th><td contenteditable="true"></td>
+            <th>Total</th><td class="rubric-total-cell">/ 4</td>
+          </tr>
+        </table>
+      `;
+
+      wrapper.appendChild(box);
+      if (qType === 'handwriting') {
+        box.classList.add('handwriting-box');
+        const tools=box.querySelector('.question-inner-tools');
+        tools?.querySelectorAll('.generic-q-tool').forEach(x=>x.style.display='none');
+        tools?.querySelectorAll('.handwriting-only').forEach(x=>x.style.display='inline-flex');
+        const table=box.querySelector('.rubric-strip');
+        if(table) table.innerHTML='<tr><th contenteditable="true">Q1 Mark</th><th>Legibility</th><td contenteditable="true"></td><th>Line Alignment</th><td contenteditable="true"></td><th>Total</th><td class="rubric-total-cell">/ 1</td></tr>';
+      }
+      upgradeQuestionMarks();
+      recordState();
+      box.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function getQuestionTotalMark(box) {
+      const input = box?.querySelector('.section-mark input');
+      if (input) return Math.max(0, parseInt(input.value) || 0);
+      const text = box?.querySelector('.section-mark')?.textContent || '';
+      const m = text.match(/\d+/); return m ? parseInt(m[0]) : 0;
+    }
+
+    function rebuildRubric(box, total) {
+      const table = box?.querySelector('.rubric-strip'); if (!table) return;
+      total = Math.max(0, Math.min(50, parseInt(total) || 0));
+      table.dataset.totalMark = total;
+      const qLabel = box.querySelector('.expand-control-bar span')?.textContent || 'Q';
+      let html = `<tr><th contenteditable="true">${qLabel} Mark</th>`;
+      for (let i=1; i<=total; i++) html += `<th>${i}</th><td contenteditable="true"></td>`;
+      html += `<th>Total</th><td class="rubric-total-cell">/ ${total}</td></tr>`;
+      table.innerHTML = html;
+    }
+
+    function setQuestionTotalMark(input) {
+      const box = input.closest('.question-box'); if (!box) return;
+      let total = Math.max(0, Math.min(50, parseInt(input.value) || 0));
+      input.value = total;
+      if (box.classList.contains('handwriting-box')) { const c=box.querySelector('.rubric-total-cell'); if(c)c.textContent='/ '+total; }
+      else rebuildRubric(box, total);
+      distributeSubQuestionMarks(box, total);
+      recordState();
+    }
+
+    function distributeSubQuestionMarks(box, total) {
+      const marks = [...box.querySelectorAll('.subquestion-mark')];
+      if (!marks.length) return;
+      let current = marks.reduce((a,x)=>a+(parseInt(x.value)||0),0);
+      if (current === total) return;
+      // Preserve existing marks where possible; put the difference on the last sub-question.
+      const beforeLast = marks.slice(0,-1).reduce((a,x)=>a+(parseInt(x.value)||0),0);
+      marks[marks.length-1].value = Math.max(0, total-beforeLast);
+    }
+
+    function syncTotalFromSubQuestions(input) {
+      const box = input.closest('.question-box'); if (!box) return;
+      const total = [...box.querySelectorAll('.subquestion-mark')].reduce((a,x)=>a+Math.max(0,parseInt(x.value)||0),0);
+      const totalInput = box.querySelector('.section-mark input');
+      if (totalInput) totalInput.value = total;
+      rebuildRubric(box, total);
+      recordState();
+    }
+
+    function renumberSubQuestions(box) {
+      box.querySelectorAll('.subquestion-row').forEach((row,i)=>{
+        const n=row.querySelector('.subquestion-number'); if(n)n.textContent=(i+1)+'.';
+      });
+    }
+
+    function addSubQuestion(btn) {
+      const box=btn.closest('.question-box'), body=box?.querySelector('.q-body-content'); if(!box||!body)return;
+      // Convert free editable area into structured rows only for newly added items; existing content stays untouched.
+      const row=document.createElement('div'); row.className='subquestion-row'; row.contentEditable='false';
+      row.innerHTML=`<span class="subquestion-number"></span><span class="subquestion-text" contenteditable="true">Write question here ....................................................</span><span class="subquestion-mark-label no-print">Mark</span><input class="subquestion-mark" type="number" min="0" max="50" value="1" oninput="syncTotalFromSubQuestions(this)"><button type="button" class="btn-delete-q no-print" onclick="removeSubQuestion(this)">✕</button>`;
+      body.appendChild(row); renumberSubQuestions(box);
+      const totalInput=box.querySelector('.section-mark input');
+      if(totalInput){ totalInput.value=getQuestionTotalMark(box)+1; rebuildRubric(box,totalInput.value); }
+      recordState(); row.querySelector('.subquestion-text').focus();
+    }
+
+    function removeSubQuestion(btn) {
+      const box=btn.closest('.question-box'), row=btn.closest('.subquestion-row'); if(!box||!row)return;
+      row.remove(); renumberSubQuestions(box);
+      const marks=[...box.querySelectorAll('.subquestion-mark')];
+      if(marks.length){ syncTotalFromSubQuestions(marks[0]); }
+      else { const totalInput=box.querySelector('.section-mark input'); if(totalInput) rebuildRubric(box,totalInput.value); recordState(); }
+    }
+
+    function addQuestionParagraph(btn) {
+      const box=btn.closest('.question-box'), body=box?.querySelector('.q-body-content'); if(!body)return;
+      const p=document.createElement('div'); p.className='paragraph-block'; p.contentEditable='true'; p.innerHTML='Write paragraph / passage here...';
+      body.appendChild(p); recordState(); p.focus();
+    }
+
+    function upgradeQuestionMarks() {
+      document.querySelectorAll('.question-box').forEach(box=>{
+        const mark=box.querySelector('.section-mark'); if(!mark)return;
+        let total=getQuestionTotalMark(box) || parseInt(box.querySelector('.rubric-total-cell')?.textContent.match(/\d+/)?.[0]||'4');
+        if(!mark.querySelector('input')) mark.innerHTML=`<input type="number" min="0" max="50" value="${total}" oninput="setQuestionTotalMark(this)"> <span>Marks</span>`;
+        if(!box.querySelector('.question-inner-tools')){
+          const tools=document.createElement('div'); tools.className='question-inner-tools no-print';
+          tools.innerHTML = `<button type="button" class="btn-mini-tool" onclick="addSubQuestion(this)">＋ Sub-question</button><button type="button" class="btn-mini-tool" onclick="addQuestionParagraph(this)">¶ Paragraph</button><button type="button" class="btn-mini-tool image-toolbar-btn" onclick="addImagesToQuestion(this)">🖼 + Images</button><button type="button" class="btn-mini-tool" onclick="setQuestionImageLayout(this,'row')">▦ Side by side</button><button type="button" class="btn-mini-tool" onclick="setQuestionImageLayout(this,'column')">☷ Stacked</button>`;
+          mark.closest('.section-bar')?.insertAdjacentElement('afterend',tools);
+        }
+        if (!box.classList.contains('handwriting-box')) rebuildRubric(box,total);
+        else { const cell=box.querySelector('.rubric-total-cell'); if(cell) cell.textContent='/ '+total; }
+      });
+    }
+
+    function getQuestionImageGallery(box, create=true) {
+      if (!box) return null;
+      let gallery = box.querySelector('.question-image-gallery');
+      if (!gallery && create) {
+        gallery = document.createElement('div');
+        gallery.className = 'question-image-gallery layout-row';
+        gallery.contentEditable = 'false';
+        const body = box.querySelector('.q-body-content');
+        if (body) body.appendChild(gallery);
+      }
+      return gallery;
+    }
+
+    function addImagesToQuestion(btn) {
+      const box = btn.closest('.question-box'); if (!box) return;
+      const picker = document.createElement('input');
+      picker.type = 'file'; picker.accept = 'image/*'; picker.multiple = true;
+      picker.onchange = () => {
+        const files = [...(picker.files || [])]; if (!files.length) return;
+        const gallery = getQuestionImageGallery(box, true);
+        let pending = files.length;
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const wrap = document.createElement('span');
+            wrap.className = 'editor-image question-gallery-image';
+            wrap.contentEditable = 'false';
+            wrap.innerHTML = `<img src="${e.target.result}" alt="Question Image" style="width:220px;max-width:100%;height:auto;">`;
+            gallery.appendChild(wrap);
+            prepareResizableImage(wrap); selectResizableImage(wrap);
+            if (--pending === 0) recordState();
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+      picker.click();
+    }
+
+    function setQuestionImageLayout(btn, mode) {
+      const box = btn.closest('.question-box'); if (!box) return;
+      const gallery = getQuestionImageGallery(box, true);
+      gallery.classList.toggle('layout-row', mode === 'row');
+      gallery.classList.toggle('layout-column', mode === 'column');
+      recordState();
+    }
+
+    function deleteQuestionImage(btn) {
+      const wrap = btn.closest('.editor-image,.inline-image-shell'); if (!wrap) return;
+      const gallery = wrap.closest('.question-image-gallery');
+      wrap.remove();
+      if (gallery && !gallery.querySelector('img')) gallery.remove();
+      recordState();
+    }
+
+    function duplicateQuestionImage(btn) {
+      const wrap = btn.closest('.editor-image,.inline-image-shell'), box = btn.closest('.question-box');
+      const img = wrap?.querySelector('img'); if (!img || !box) return;
+      const gallery = getQuestionImageGallery(box, true);
+      const copy = document.createElement('span'); copy.className='editor-image question-gallery-image'; copy.contentEditable='false';
+      copy.innerHTML = `<img src="${img.src}" alt="Question Image" style="width:${Math.round(img.getBoundingClientRect().width)||220}px;max-width:100%;height:auto;">`;
+      gallery.appendChild(copy); prepareResizableImage(copy); selectResizableImage(copy); recordState();
+    }
+
+    function loadInlineImg(input, imgElem) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imgElem.src = e.target.result;
+          enhanceAllImages();
+          const shell = imgElem.closest('.inline-image-shell'); if (shell) selectResizableImage(shell);
+          recordState();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function toggleModelAnswer() {
+      isModelAnswer = !isModelAnswer;
+      const btn = document.getElementById('modelAnswerBtn');
+      const examTitle = document.getElementById('examTitle');
+      const studentName = document.getElementById('studentNameCell');
+
+      if (isModelAnswer) {
+        document.body.classList.add('model-answer-active');
+        btn.innerText = "📄 Student Test View";
+        btn.style.background = "#0e5c4d";
+        examTitle.innerText = "Exam (Model Answer & Rubrics)";
+        studentName.innerText = "Model Answer / إجابة نموذجية";
+      } else {
+        document.body.classList.remove('model-answer-active');
+        btn.innerText = "🔑 Model Answer";
+        btn.style.background = "#b91c1c";
+        examTitle.innerText = "First Period Exam";
+        studentName.innerText = "";
+      }
+    }
+
+    function changeStage(stage) {
+      const stageEn = document.getElementById('stageEnglishText');
+      const stageAr = document.getElementById('stageArabicText');
+      const examSub = document.getElementById('examSubtitle');
+      const courseCell = document.getElementById('courseNameCell');
+
+      if (stage === 'top_goal') {
+        stageEn.innerText = "Elementary Section";
+        stageAr.innerText = "القسم الابتدائي (بنين)";
+        examSub.innerText = "English Language — Top Goal";
+        courseCell.innerText = "English (Top Goal)";
+      } else if (stage === 'top_stars') {
+        stageEn.innerText = "Elementary Section";
+        stageAr.innerText = "القسم الابتدائي (بنين)";
+        examSub.innerText = "English Language — Top Stars";
+        courseCell.innerText = "English (Top Stars)";
+      } else if (stage === 'we_can') {
+        stageEn.innerText = "Elementary Section";
+        stageAr.innerText = "القسم الابتدائي (بنين)";
+        examSub.innerText = "English Language — We Can";
+        courseCell.innerText = "English (We Can)";
+      } else if (stage === 'pioneer') {
+        stageEn.innerText = "Intermediate Section";
+        stageAr.innerText = "القسم المتوسط";
+        examSub.innerText = "English Language — Pioneer";
+        courseCell.innerText = "English (Pioneer)";
+      } else if (stage === 'super_goal') {
+        stageEn.innerText = "Intermediate Section";
+        stageAr.innerText = "القسم المتوسط";
+        examSub.innerText = "English Language — Super Goal";
+        courseCell.innerText = "English (Super Goal)";
+      } else if (stage === 'mega_goal') {
+        stageEn.innerText = "High Secondary Section";
+        stageAr.innerText = "القسم الثانوي";
+        examSub.innerText = "English Language — Mega Goal";
+        courseCell.innerText = "English (Mega Goal)";
+      }
+      recordState();
+    }
+
+    function addNewExamPage() {
+      const pages = document.querySelectorAll('.page');
+      const newPageNum = pages.length + 1;
+      const pagesContainer = document.getElementById('pagesContainer');
+
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'page';
+      pageDiv.id = `page${newPageNum}`;
+
+      pageDiv.innerHTML = `
+        <div class="outer-border">
+          <div class="inner-border">
+            <div class="main-body" contenteditable="true" spellcheck="true">
+              <div class="free-canvas-badge no-print">WORD EDITING CANVAS</div>
+              <div class="continuation-heading" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1.5px solid #0e5c4d; padding-bottom:5px;">
+                <div style="font-weight:800; font-size:12px; color:#0e5c4d;">Page ${newPageNum} — Questions Continuation</div>
+                <span class="no-print" style="font-size:11px; color:#64748b;">(Page ${newPageNum})</span>
+              </div>
+              <div id="page${newPageNum}_wrapper" class="questions-wrapper">
+              </div>
+            </div>
+            <div>
+              <div class="footer-divider"></div>
+              <div class="footer-row">
+                <div class="footer-vision">✨ With my best wishes ✨</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="footer-badge-text follow-badge" id="p${newPageNum}_follow_tag">انتهت الأسئلة</span>
+                  <div class="page-num page-num-tag" style="border: none;">Page ${newPageNum} of ${newPageNum}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      pagesContainer.appendChild(pageDiv);
+      updateAllPagesFooterAndDropdown();
+      recordState();
+      pageDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function removeLastExamPage() {
+      const pages = document.querySelectorAll('.page');
+      if (pages.length <= 1) {
+        alert('لا يمكن حذف الصفحة الأولى الرئيسية.');
+        return;
+      }
+      if (confirm(`هل أنت متأكد من حذف الصفحة رقم ${pages.length}؟`)) {
+        pages[pages.length - 1].remove();
+        updateAllPagesFooterAndDropdown();
+        recordState();
+      }
+    }
+
+    function updateAllPagesFooterAndDropdown() {
+      const pages = document.querySelectorAll('.page');
+      const totalPages = pages.length;
+      const targetSelect = document.getElementById('targetPageSelect');
+      const currentSelected = targetSelect.value;
+
+      targetSelect.innerHTML = '';
+
+      pages.forEach((page, index) => {
+        const pageIdx = index + 1;
+        page.id = `page${pageIdx}`;
+        const wrapper = page.querySelector('.questions-wrapper');
+        if (wrapper) wrapper.id = `page${pageIdx}_wrapper`;
+
+        const opt = document.createElement('option');
+        opt.value = `page${pageIdx}_wrapper`;
+        opt.innerText = `Page ${pageIdx}`;
+        targetSelect.appendChild(opt);
+
+        const pageNumTag = page.querySelector('.page-num-tag');
+        const followTag = page.querySelector('.footer-badge-text');
+
+        if (pageNumTag) {
+          pageNumTag.innerText = `Page ${pageIdx} of ${totalPages}`;
+        }
+
+        if (followTag) {
+          if (pageIdx < totalPages) {
+            followTag.className = 'footer-badge-text follow-badge';
+            followTag.innerText = 'FOLLOW ➔';
+          } else {
+            followTag.className = 'footer-badge-text';
+            followTag.innerText = 'انتهت الأسئلة';
+          }
+        }
+      });
+
+      if (document.querySelector(`option[value="${currentSelected}"]`)) {
+        targetSelect.value = currentSelected;
+      }
+    }
+
+    function uploadLogo(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('schoolLogo').src = e.target.result;
+          recordState();
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function clearAllTemplateData() {
+      if (confirm('هل أنت متأكد من تفريغ كافة الأسئلة وإعادة الصفحة فارغة؟')) {
+        document.querySelectorAll('.questions-wrapper').forEach(w => w.innerHTML = '');
+        recordState();
+      }
+    }
+
+    function saveExamData() {
+      localStorage.setItem('examcraft_v3_saved', document.getElementById('pagesContainer').innerHTML);
+      alert('💾 تم حفظ ورقة الاختبار محلياً بنجاح!');
+    }
+
+
+    function resizeQuestion(ctrl, mode) {
+      const box = ctrl.closest('.question-box'); if (!box) return;
+      const body = box.querySelector('.q-body-content');
+      if (mode === 'height') body.style.minHeight = ctrl.value + 'px';
+      if (mode === 'width') { box.style.width = ctrl.value + '%'; box.style.maxWidth = '100%'; }
+      if (mode === 'font') body.style.fontSize = Math.max(8, Math.min(40, +ctrl.value || 13)) + 'px';
+      recordState();
+    }
+    function resetQuestionSize(btn) {
+      const box=btn.closest('.question-box'), body=box?.querySelector('.q-body-content'); if(!box||!body)return;
+      box.style.width='100%'; body.style.minHeight='50px'; body.style.fontSize='12.5px';
+      const rs=box.querySelectorAll('.q-range'); if(rs[0])rs[0].value=120;if(rs[1])rs[1].value=100; const n=box.querySelector('.q-size-input');if(n)n.value=13; recordState();
+    }
+    function addResizeHandles(wrap){
+      if(wrap.querySelector('.resize-handle')) return;
+      ['nw','n','ne','e','se','s','sw','w'].forEach(pos=>{const h=document.createElement('span');h.className='resize-handle '+pos;h.dataset.pos=pos;wrap.appendChild(h);});
+      if(!wrap.querySelector('.object-size-panel')){const p=document.createElement('div');p.className='object-size-panel no-print';p.innerHTML='W <input type="number" min="30" onchange="setSelectedImageSize(this,\'w\')"> H <input type="number" min="20" onchange="setSelectedImageSize(this,\'h\')"> px';wrap.appendChild(p);}
+      if(!wrap.querySelector('.object-controls')){const c=document.createElement('div');c.className='object-controls no-print';c.innerHTML='<button type="button" class="image-duplicate-btn" onclick="event.stopPropagation();duplicateQuestionImage(this)" title="Duplicate image">⧉</button><button type="button" class="image-delete-btn" onclick="event.stopPropagation();deleteQuestionImage(this)" title="Delete image">✕</button>';wrap.appendChild(c);}
+    }
+    function selectResizableImage(wrap){ document.querySelectorAll('.editor-image.is-selected,.inline-image-shell.is-selected').forEach(x=>x.classList.remove('is-selected')); wrap.classList.add('is-selected'); const img=wrap.querySelector('img'), ins=wrap.querySelectorAll('.object-size-panel input'); if(img&&ins[0]){ins[0].value=Math.round(img.getBoundingClientRect().width);ins[1].value=img.style.height&&img.style.height!=='auto'?parseInt(img.style.height):'';} }
+    function setSelectedImageSize(input,axis){const wrap=input.closest('.editor-image,.inline-image-shell'),img=wrap?.querySelector('img');if(!img)return;let v=Math.max(20,+input.value||20);const max=(wrap.closest('.main-body')?.clientWidth||700);if(axis==='w'){v=Math.min(v,max);img.style.width=v+'px';img.style.maxWidth='100%';}else{img.style.height=v+'px';img.style.objectFit='contain';}recordState();}
+    function prepareResizableImage(wrap){
+      if(!wrap||wrap.dataset.resizableReady==='1')return; wrap.dataset.resizableReady='1'; wrap.style.position='relative'; wrap.style.width='fit-content'; wrap.style.maxWidth='100%'; addResizeHandles(wrap);
+      wrap.addEventListener('click',e=>{e.stopPropagation();selectResizableImage(wrap)});
+      wrap.addEventListener('pointerdown',e=>{const h=e.target.closest('.resize-handle');if(!h)return;e.preventDefault();selectResizableImage(wrap);const img=wrap.querySelector('img'),r=img.getBoundingClientRect(),startX=e.clientX,startY=e.clientY,startW=r.width,startH=r.height,ratio=startW/startH,pos=h.dataset.pos,maxW=wrap.closest('.main-body')?.clientWidth||700;function move(ev){let w=startW,hg=startH,dx=ev.clientX-startX,dy=ev.clientY-startY;if(pos.includes('e'))w=startW+dx;if(pos.includes('w'))w=startW-dx;if(pos.includes('s'))hg=startH+dy;if(pos.includes('n'))hg=startH-dy;if(['nw','ne','se','sw'].includes(pos)){if(Math.abs(dx)>Math.abs(dy)){w=Math.max(30,Math.min(maxW,w));hg=w/ratio}else{hg=Math.max(20,hg);w=hg*ratio}}img.style.width=Math.max(30,Math.min(maxW,w))+'px';img.style.height=Math.max(20,hg)+'px';img.style.maxWidth='100%';img.style.objectFit='contain';}function up(){document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);selectResizableImage(wrap);recordState()}document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);});
+    }
+    function enhanceAllImages(){
+      document.querySelectorAll('.editor-image').forEach(prepareResizableImage);
+      document.querySelectorAll('.q-body-content img').forEach(img=>{if(img.closest('.editor-image,.inline-image-shell'))return;const shell=document.createElement('span');shell.className='inline-image-shell';shell.contentEditable='false';shell.style.display='inline-block';shell.style.position='relative';shell.style.maxWidth='100%';img.parentNode.insertBefore(shell,img);shell.appendChild(img);img.style.maxWidth='100%';img.style.height='auto';prepareResizableImage(shell);});
+    }
+    document.addEventListener('click',e=>{if(!e.target.closest('.editor-image,.inline-image-shell'))document.querySelectorAll('.is-selected').forEach(x=>x.classList.remove('is-selected'));});
+
+    window.examSpellCheck = true;
+    function toggleSpellCheck(){
+      window.examSpellCheck = !window.examSpellCheck;
+      document.querySelectorAll('[contenteditable="true"]').forEach(el=>el.setAttribute('spellcheck',window.examSpellCheck?'true':'false'));
+      const b=document.getElementById('spellBtn'); if(b)b.textContent=window.examSpellCheck?'✓ Spelling ON':'✕ Spelling OFF';
+      showStatusMessage(window.examSpellCheck?'✓ Spell check enabled':'Spell check disabled');
+    }
+    function addMCQTable(btn){
+      const box=btn.closest('.question-box'), body=box?.querySelector('.q-body-content'); if(!body)return;
+      const wrap=document.createElement('div'); wrap.className='mcq-block'; wrap.contentEditable='false';
+      wrap.innerHTML='<div contenteditable="true" style="font-weight:700;margin:5px 0">Choose the correct answer:</div><table class="mcq-choice-table"><tr><td class="choice-letter">A</td><td contenteditable="true">Option A</td><td class="choice-letter">B</td><td contenteditable="true">Option B</td></tr><tr><td class="choice-letter">C</td><td contenteditable="true">Option C</td><td class="choice-letter">D</td><td contenteditable="true">Option D</td></tr></table><button type="button" class="btn-delete-q no-print" onclick="this.closest(\'.mcq-block\').remove();recordState()">✕ Remove MCQ</button>';
+      body.appendChild(wrap); recordState();
+    }
+    function addHandwritingLineSet(btn){
+      const body=btn.closest('.question-box')?.querySelector('.q-body-content'); if(!body)return;
+      const lines=document.createElement('div');lines.className='handwriting-copy-box';lines.innerHTML='<div class="four-lines-container"><div class="four-line-red"></div><div class="four-line-blue-dashed"></div><div class="four-line-blue-dashed"></div><div class="four-line-red"></div></div>';body.appendChild(lines);recordState();
+    }
+    function exportExamFile(){
+      const data={app:'ExamCraft AI Pro',version:5,savedAt:new Date().toISOString(),html:document.getElementById('pagesContainer').innerHTML};
+      const blob=new Blob([JSON.stringify(data)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='exam-'+new Date().toISOString().slice(0,10)+'.examcraft';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+      localStorage.setItem('examcraft_v3_saved',data.html); showStatusMessage('💾 Exam file saved');
+    }
+    function openExamFile(){ document.getElementById('examFileInput').click(); }
+    function importExamFile(input){
+      const f=input.files?.[0]; if(!f)return; const rd=new FileReader(); rd.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.html)throw new Error('Invalid exam file');document.getElementById('pagesContainer').innerHTML=d.html;updateAllPagesFooterAndDropdown();enableFreeCanvas();recordState();showStatusMessage('📂 Exam restored successfully');}catch(err){alert('تعذر فتح ملف الاختبار: '+err.message)} input.value='';};rd.readAsText(f);
+    }
+
+    function enableFreeCanvas() {
+      document.querySelectorAll('.main-body').forEach(b => {
+        b.setAttribute('contenteditable', 'true');
+        b.setAttribute('spellcheck', window.examSpellCheck === false ? 'false' : 'true');
+      });
+      document.querySelectorAll('.question-box').forEach(box=>{
+        const title=box.querySelector('.section-name')?.textContent?.toLowerCase()||'';
+        if(title.includes('handwriting')) box.classList.add('handwriting-box');
+      });
+      enhanceAllImages();
+      upgradeQuestionMarks();
+      document.querySelectorAll('[contenteditable="true"]').forEach(el=>el.setAttribute('spellcheck',window.examSpellCheck?'true':'false'));
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function showStatusMessage(msg) {
+      const st = document.getElementById('editorStatus');
+      if (st) st.textContent = msg;
+    }
+
+    window.onload = function() {
+      enableFreeCanvas();
+      const saved = localStorage.getItem('examcraft_v3_saved');
+      if (saved) {
+        document.getElementById('pagesContainer').innerHTML = saved;
+        updateAllPagesFooterAndDropdown();
+        enableFreeCanvas();
+      }
+      // تسجيل الحالة الأولية
+      recordState();
+    };
+  
+// ===== V7: fixed dual toolbars, universal formatting, spelling, drag/drop, Pro tools =====\nlet aiDraft='';
+function openModal(id){const e=document.getElementById(id);if(e)e.style.display='flex'}
+function closeModal(id){const e=document.getElementById(id);if(e)e.style.display='none'}
+function openAIModal(){openModal('aiModal')}
+function openOnlineModal(){openModal('onlineModal');updateOnlinePreview()}
+function openCertificateModal(){openModal('certificateModal');updateCertificatePreview()}
+function generateAIQuestions(){const subject=document.getElementById('aiSubject').value,grade=document.getElementById('aiGrade').value,topic=document.getElementById('aiTopic').value,count=Math.max(1,+document.getElementById('aiCount').value||1),type=document.getElementById('aiType').value,diff=document.getElementById('aiDifficulty').value;let out=`${subject} — ${grade}\nTopic: ${topic}\nDifficulty: ${diff}\nQuestion Type: ${type}\n\n`;for(let i=1;i<=count;i++){if(type==='True / False')out+=`${i}. Write a statement about ${topic}. (True / False)\n`;else if(type==='Reading')out+=`${i}. Read and answer a question about ${topic}.\n   Answer: __________________________________________\n`;else out+=`${i}. Choose the correct answer about ${topic}.\n   A. __________   B. __________   C. __________   D. __________\n`;}aiDraft=out;document.getElementById('aiOutput').textContent=out}
+function insertAIOutput(){if(!aiDraft)generateAIQuestions();const target=(window._lastEditable&&document.body.contains(window._lastEditable))?window._lastEditable:document.querySelector('.questions-wrapper');const d=document.createElement('div');d.className='q-body-content';d.contentEditable='true';d.spellcheck=true;d.style.whiteSpace='pre-wrap';d.textContent=aiDraft;(target||document.querySelector('.main-body')).appendChild(d);if(typeof recordState==='function')recordState();closeModal('aiModal')}
+function updateOnlinePreview(){const a=document.getElementById('onlineTitle'),b=document.getElementById('onlineMinutes'),c=document.getElementById('onlineAttempts');if(a)document.getElementById('onlinePreviewTitle').textContent=a.value;if(b)document.getElementById('onlinePreviewTime').textContent=b.value;if(c)document.getElementById('onlinePreviewAttempts').textContent=c.value}
+function saveOnlineSettings(){const settings={title:document.getElementById('onlineTitle').value,minutes:document.getElementById('onlineMinutes').value,attempts:document.getElementById('onlineAttempts').value,random:document.getElementById('onlineRandom').value,result:document.getElementById('onlineResult').value,access:document.getElementById('onlineAccess').value};localStorage.setItem('examcraft_online_settings',JSON.stringify(settings));updateOnlinePreview();alert('Online exam settings saved.');}
+function updateCertificatePreview(){const map=[['certName','certPreviewName'],['certAchievement','certPreviewAchievement'],['certScore','certPreviewScore'],['certTeacher','certPreviewTeacher'],['certId','certPreviewId']];map.forEach(([a,b])=>{const x=document.getElementById(a),y=document.getElementById(b);if(x&&y)y.textContent=x.value});const d=document.getElementById('certDate')?.value;const out=document.getElementById('certPreviewDate');if(out)out.textContent=d?new Date(d+'T00:00:00').toLocaleDateString():new Date().toLocaleDateString()}
+function printCertificate(){updateCertificatePreview();const c=document.getElementById('certificatePreview').outerHTML,w=window.open('','_blank','width=1000,height=800');w.document.write(`<html><head><title>Certificate</title><style>@page{size:A4 landscape;margin:15mm}body{font-family:Arial;margin:0}.cert-preview{border:10px double #0e5c4d;padding:35px;text-align:center;min-height:430px;background:#fffdf5}.cert-preview h1{font-size:32px;color:#0e5c4d}.cert-name{font-size:27px;font-weight:900;border-bottom:2px solid #c19a4b;display:inline-block;padding:8px 35px}</style></head><body>${c}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
+function syncStickyBars(){const t=document.querySelector('.top-toolbar');if(t)document.documentElement.style.setProperty('--top-toolbar-h',t.offsetHeight+'px')}
+function enableUniversalEditing(){document.querySelectorAll('.main-body').forEach(x=>{x.contentEditable='true';x.spellcheck=true});document.querySelectorAll('[contenteditable="true"]').forEach(x=>x.spellcheck=true);}
+function insertDroppedImage(file,target){const r=new FileReader();r.onload=e=>{const wrap=document.createElement('span');wrap.className='editor-image-wrap';wrap.contentEditable='false';wrap.style.cssText='display:inline-block;position:relative;max-width:100%;margin:4px;vertical-align:top';const img=document.createElement('img');img.src=e.target.result;img.style.cssText='max-width:100%;width:220px;height:auto;display:block;resize:both';wrap.appendChild(img);const b=document.createElement('button');b.textContent='✕';b.className='no-print';b.style.cssText='position:absolute;right:2px;top:2px;background:#dc2626;color:#fff;border:0;border-radius:3px;cursor:pointer';b.onclick=()=>{wrap.remove();if(typeof recordState==='function')recordState()};wrap.appendChild(b);target.appendChild(wrap);if(typeof addResizeHandles==='function')addResizeHandles(wrap);if(typeof recordState==='function')recordState()};r.readAsDataURL(file)}
+function setupDropPaste(){document.addEventListener('dragover',e=>{const t=e.target.closest('.q-body-content,.main-body,[contenteditable="true"]');if(t){e.preventDefault();t.classList.add('drop-ready')}});document.addEventListener('dragleave',e=>e.target.closest('.drop-ready')?.classList.remove('drop-ready'));document.addEventListener('drop',e=>{const t=e.target.closest('.q-body-content,.main-body,[contenteditable="true"]');if(!t)return;e.preventDefault();document.querySelectorAll('.drop-ready').forEach(x=>x.classList.remove('drop-ready'));const files=[...e.dataTransfer.files];const imgs=files.filter(f=>f.type.startsWith('image/'));if(imgs.length){imgs.forEach(f=>insertDroppedImage(f,t));return}const html=e.dataTransfer.getData('text/html'),txt=e.dataTransfer.getData('text/plain');if(html||txt){t.focus();document.execCommand('insertHTML',false,html||txt.replace(/\n/g,'<br>'));if(typeof recordState==='function')recordState()}});document.addEventListener('paste',e=>{const t=e.target.closest('.q-body-content,.main-body,[contenteditable="true"]');if(!t)return;const imgs=[...e.clipboardData.items].filter(i=>i.type.startsWith('image/'));if(imgs.length){e.preventDefault();imgs.forEach(i=>insertDroppedImage(i.getAsFile(),t))}})}
+document.addEventListener('focusin',e=>{if(e.target.closest('[contenteditable="true"]'))window._lastEditable=e.target.closest('[contenteditable="true"]')});
+window.addEventListener('load',()=>{syncStickyBars();enableUniversalEditing();setupDropPaste();['onlineTitle','onlineMinutes','onlineAttempts'].forEach(id=>document.getElementById(id)?.addEventListener('input',updateOnlinePreview));['certName','certAchievement','certScore','certTeacher','certId','certDate'].forEach(id=>document.getElementById(id)?.addEventListener('input',updateCertificatePreview));setTimeout(syncStickyBars,100)});window.addEventListener('resize',syncStickyBars);
+</script>
+
+<style id="fixed-dual-toolbar-patch">
+/* Keep BOTH complete toolbars visible while scrolling */
+.top-toolbar{position:sticky!important;top:0!important;z-index:5000!important;flex-wrap:wrap!important;height:auto!important;overflow:visible!important;}
+.top-toolbar .toolbar-left,.top-toolbar .toolbar-right{flex-wrap:wrap!important;}
+.pro-editor-toolbar{position:sticky!important;top:var(--main-toolbar-height,58px)!important;z-index:4999!important;height:auto!important;overflow:visible!important;flex-wrap:wrap!important;}
+@media print{.top-toolbar,.pro-editor-toolbar{display:none!important;}}
+</style>
+<script id="fixed-dual-toolbar-script">
+(function(){
+ function syncToolbarOffset(){
+   var top=document.querySelector('.top-toolbar');
+   if(top){document.documentElement.style.setProperty('--main-toolbar-height', top.getBoundingClientRect().height+'px');}
+ }
+ window.addEventListener('load',syncToolbarOffset);
+ window.addEventListener('resize',syncToolbarOffset);
+ setTimeout(syncToolbarOffset,50);
+})();
+</script>
+</body>
+</html>
